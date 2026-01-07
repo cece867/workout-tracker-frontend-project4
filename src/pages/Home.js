@@ -1,60 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import WorkoutList from '../components/WorkoutList';
-import WorkoutForm from '../components/WorkoutForm';
-import { getWorkouts, createWorkout, deleteWorkout } from '../services/api';
+import React, { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
+import WorkoutList from "../components/WorkoutList";
+import WorkoutForm from "../components/WorkoutForm";
+import { getWorkouts, createWorkout, deleteWorkout } from "../services/api";
 
-function Home() {
+export default function Home() {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchWorkouts();
-  }, []);
+  const [error, setError] = useState("");
 
   const fetchWorkouts = async () => {
     try {
+      setError("");
       setLoading(true);
-      const response = await getWorkouts();
-      setWorkouts(response.data);
-      setError(null);
+      const { data } = await getWorkouts();
+      setWorkouts(data);
     } catch (err) {
-      setError('Failed to load workouts. Please try again.');
-      console.error('Error fetching workouts:', err);
+      console.error("Error fetching workouts:", err);
+      setError("Failed to load workouts. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
+
   const handleCreateWorkout = async (workoutData) => {
     try {
-      const response = await createWorkout(workoutData);
-      setWorkouts([...workouts, response.data]);
+      setError("");
+      const { data } = await createWorkout(workoutData);
+      setWorkouts((prev) => [data, ...prev]); // put newest first
     } catch (err) {
-      setError('Failed to create workout. Please try again.');
-      console.error('Error creating workout:', err);
+      console.error("Error creating workout:", err);
+      setError("Failed to create workout. Please try again.");
     }
   };
 
   const handleDeleteWorkout = async (id) => {
     try {
+      setError("");
       await deleteWorkout(id);
-      setWorkouts(workouts.filter(workout => workout._id !== id));
+      setWorkouts((prev) => prev.filter((w) => w._id !== id));
     } catch (err) {
-      setError('Failed to delete workout. Please try again.');
-      console.error('Error deleting workout:', err);
+      console.error("Error deleting workout:", err);
+      setError("Failed to delete workout. Please try again.");
     }
   };
 
   return (
     <div>
       <Navbar />
+
       <main className="container mt-4" role="main">
-        <h1>My Workouts</h1>
-        
+        <h1 className="mb-3">My Workouts</h1>
+
         {error && (
-          <div className="alert alert-danger" role="alert">
+          <div className="alert alert-danger" role="alert" aria-live="assertive">
             {error}
           </div>
         )}
@@ -62,8 +65,8 @@ function Home() {
         <WorkoutForm onSubmit={handleCreateWorkout} />
 
         {loading ? (
-          <div className="text-center">
-            <div className="spinner-border" role="status">
+          <div className="text-center mt-4" aria-busy="true" aria-live="polite">
+            <div className="spinner-border" role="status" aria-label="Loading workouts">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
@@ -74,5 +77,3 @@ function Home() {
     </div>
   );
 }
-
-export default Home;

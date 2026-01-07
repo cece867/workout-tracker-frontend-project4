@@ -1,44 +1,44 @@
-import React from 'react';
+import React from "react";
 
-function WorkoutList({ workouts, onDelete }) {
-  if (workouts.length === 0) {
-    return (
-      <div className="alert alert-info" role="alert">
-        <p>No workouts found. Create your first workout to get started!</p>
-      </div>
-    );
+export default function WorkoutList({ workouts, onDelete }) {
+  if (!workouts || workouts.length === 0) {
+    return <p className="text-muted">No workouts yet. Add one above.</p>;
   }
 
   return (
-    <div className="row">
-      {workouts.map((workout) => (
-        <div key={workout._id} className="col-md-6 col-lg-4 mb-4">
+    <div className="row g-3">
+      {workouts.map((w) => (
+        <div className="col-md-6" key={w._id}>
           <div className="card h-100">
             <div className="card-body">
-              <h5 className="card-title">{workout.name}</h5>
-              <p className="card-text">
-                <strong>Type:</strong> {workout.type}
+              <h5 className="card-title">{w.name}</h5>
+
+              <p className="mb-1">
+                <strong>Date:</strong> {w.date}
               </p>
-              <p className="card-text">
-                <strong>Duration:</strong> {workout.duration} minutes
+
+              {/* ✅ ADDED — duration */}
+              <p className="mb-1">
+                <strong>Duration:</strong> {w.duration} minutes
               </p>
-              <p className="card-text">
-                <strong>Date:</strong> {new Date(workout.date).toLocaleDateString()}
-              </p>
-              <p className="card-text">
-                <strong>Status:</strong> {workout.completed ? 'Completed' : 'In Progress'}
-              </p>
-              {workout.notes && (
-                <p className="card-text">
-                  <strong>Notes:</strong> {workout.notes}
+
+              {w.time && (
+                <p className="mb-2">
+                  <strong>Time:</strong> {w.time}
                 </p>
               )}
-            </div>
-            <div className="card-footer">
-              <button 
-                className="btn btn-danger btn-sm"
-                onClick={() => onDelete(workout._id)}
-                aria-label={`Delete ${workout.name} workout`}
+
+              {w.notes && (
+                <p className="card-text">
+                  <strong>Comments:</strong> {w.notes}
+                </p>
+              )}
+
+              <button
+                type="button"
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => onDelete(w._id)}
+                aria-label={`Delete workout ${w.name}`}
               >
                 Delete
               </button>
@@ -49,5 +49,3 @@ function WorkoutList({ workouts, onDelete }) {
     </div>
   );
 }
-
-export default WorkoutList;
